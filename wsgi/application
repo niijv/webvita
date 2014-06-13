@@ -10,3 +10,5 @@ except IOError:
     pass
  
 from wv import app as application
+import wv
+wv.db_setup('Dummy', 'dummy', 'dummy@email.com')
