@@ -8,7 +8,14 @@ try:
     execfile(virtualenv, dict(__file__=virtualenv))
 except IOError:
     pass
- 
+
 from wv import app as application
-import wv
-wv.db_setup('Dummy', 'dummy', 'dummy@email.com')
+
+#DB setup
+from wv import *
+db.drop_all()
+db.create_all()
+admin = User('Dummy', pwd_context.encrypt('dummy'), 'dummy@gmail.com')
+db.session.add(admin)
+db.session.commit()
+
