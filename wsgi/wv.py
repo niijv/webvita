@@ -78,7 +78,7 @@ def dashboard():
 def show_blogpost(blogpost_title):
     try:
         
-        blogpost = Blogpost.query.filter_by(title=blogpost_title).first()
+        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
         return render_template('show_blogpost.html', blogpost=blogpost)
 
     except Exception, e:
@@ -119,10 +119,11 @@ def add_blogpost():
         tags = unicode(request.form['tags'])
         for t in tags.split(','):
             t = t.strip()
-            blogpost_tags.append(t)           
+            if t:
+                blogpost_tags.append(t)           
 
-        user = User.query.filter_by(username=session['user']).first()
-        blogpost = Blogpost(user, title, unicode(request.form['text']), blogpost_tags, hidden=False, )
+        user = User.query.filter_by(username=session['user']).first_or_404()
+        blogpost = Blogpost(user, title, unicode(request.form['text']), blogpost_tags, hidden=False)
         db.session.add(blogpost)       
         db.session.commit()
 
@@ -141,8 +142,10 @@ def edit_blogpost_list():
     try:    
 
         if not session.get('logged_in'):
-            abort(401)        
-        return render_template('edit_blogpost_list.html') 
+            abort(401)
+
+        blogposts = Blogpost.query.order_by('posted desc').all()       
+        return render_template('edit_blogpost_list.html', blogposts=blogposts) 
 
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -152,12 +155,51 @@ def edit_blogpost_list():
         return redirect(url_for('show_blog'))
 
 @app.route('/blog/edit/<blogpost_title>')
-def edit_blogpost():
+def edit_blogpost(blogpost_title):
     try:    
 
         if not session.get('logged_in'):
-            abort(401)        
-        return render_template('edit_blogpost.html', blogpost=blogpost) 
+            abort(401)
+
+        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()  
+        tags = ', '.join([tag.name for tag in blogpost.tags])     
+        return render_template('edit_blogpost.html', blogpost=blogpost, tags=tags)
+
+    except Exception, e:
+        error = 'An unexpected error occured. Try again later.'
+        if app.debug:
+            error += '\n' + str(e)
+        flash(error, 'error')
+        return redirect(url_for('show_blog'))
+
+@app.route('/blog/update/<blogpost_title>', methods=['GET', 'POST'])
+def update_blogpost(blogpost_title):
+    try:
+
+        if not session.get('logged_in'):
+            abort(401)    
+
+        title = unicode(request.form['title'])
+        if title!=blogpost_title and not is_title_unique(title):
+            flash('Title already exists. Please choose a different title for your blogpost.')
+            return redirect(url_for('edit_blogpost', blogpost_title=blogpost_title)) #TODO: send previous data
+        
+        blogpost_tags = []
+        tags = unicode(request.form['tags'])
+        for t in tags.split(','):
+            t = t.strip()
+            if t:
+                blogpost_tags.append(t)           
+        
+        old_blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
+        old_blogpost.title = title
+        old_blogpost.text = unicode(request.form['text'])
+        old_blogpost.update_tags(blogpost_tags) #TODO: remove possible unused tags
+        old_blogpost.edited = datetime.utcnow()
+        db.session.commit()
+
+        flash('Blogpost has been updated.')
+        return redirect(url_for('show_blogpost', blogpost_title=title))          
 
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -167,11 +209,17 @@ def edit_blogpost():
         return redirect(url_for('show_blog'))
 
 @app.route('/blog/delete/<blogpost_title>')
-def delete_blogpost():
+def delete_blogpost(blogpost_title):
     try:    
 
         if not session.get('logged_in'):
-            abort(401)        
+            abort(401)
+
+        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
+        db.session.delete(blogpost) #TODO: remove possible unused tags
+        db.session.commit()
+
+        flash('Blogpost has been deleted.')
         return render_template('dashboard.html') 
 
     except Exception, e:
@@ -194,6 +242,7 @@ def show_tag(tag_name):
             error += '\n' + str(e)
         flash(error, 'error')
         return redirect(url_for('show_blog'))
+
 
 '''             Login and Session Logic             '''
 
@@ -280,10 +329,8 @@ class Blogpost(db.Model):
     hidden = db.Column(db.Boolean)
     tags = db.relationship('Tag', secondary=tags, backref=db.backref('tags', lazy='dynamic'))
 
-    def __init__(self, author, title, text, tags, posted=None, edited=None, hidden=True):
-        self.user_id = author.id        
-        self.title = title
-        self.text = text
+    def update_tags(self, tags):
+        #TODO: remove unused tags
         tag_list = []
         for t in tags:
             tag = Tag.query.filter_by(name=t).first()
@@ -292,6 +339,12 @@ class Blogpost(db.Model):
             else:
                 tag_list.append(tag)
         self.tags = tag_list
+
+    def __init__(self, author, title, text, tags, posted=None, edited=None, hidden=True):
+        self.user_id = author.id        
+        self.title = title
+        self.text = text
+        self.update_tags(tags)
         if posted is None:
             posted = datetime.utcnow()
         self.posted = posted
