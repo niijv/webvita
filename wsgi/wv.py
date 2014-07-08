@@ -30,15 +30,7 @@ def show_blog():
     try:    
 
         blogposts = Blogpost.query.order_by('posted desc').all()
-        '''all_tags = []        
-        for blogpost in blogposts:
-            tags = TagsToBlogposts.query.filter_by(blogpost=blogpost.blogpost_id).all()
-            tags_per_blogpost = []
-            for t in tags:
-                tag = Tag.query.filter_by(tag_id=t.tag).first()
-                tags_per_blogpost.append(tag.name)
-            all_tags.append(tags_per_blogpost)'''
-        return render_template('show_blog.html', blogposts=blogposts)#, tags=all_tags)
+        return render_template('show_blog.html', blogposts=blogposts)
 
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -87,12 +79,7 @@ def show_blogpost(blogpost_title):
     try:
         
         blogpost = Blogpost.query.filter_by(title=blogpost_title).first()
-        '''tags = TagsToBlogposts.query.filter_by(blogpost=blogpost.blogpost_id).all()
-        all_tags = []
-        for t in tags:
-            tag = Tag.query.filter_by(tag_id=t.tag).first()
-            all_tags.append(tag.name)'''
-        return render_template('show_blogpost.html', blogpost=blogpost)#, tags=all_tags)
+        return render_template('show_blogpost.html', blogpost=blogpost)
 
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -137,19 +124,7 @@ def add_blogpost():
         user = User.query.filter_by(username=session['user']).first()
         blogpost = Blogpost(user, title, unicode(request.form['text']), blogpost_tags, hidden=False, )
         db.session.add(blogpost)       
-        db.session.commit()               
-
-        '''tags = unicode(request.form['tags'])
-        for t in tags.split(','):
-            t = t.strip()            
-            tag = Tag.query.filter_by(name=t).first()
-            if not tag:                
-                tag = Tag(t)
-                db.session.add(tag)
-                db.session.commit()
-            #tag_to_blogpost = TagsToBlogposts(tag.tag_id, blogpost.blogpost_id)
-            #db.session.add(tag_to_blogpost)
-            #db.session.commit()'''
+        db.session.commit()
 
         flash('New blogpost has been added.')
         return redirect(url_for('show_blog'))
@@ -209,22 +184,9 @@ def delete_blogpost():
 @app.route('/blog/tag/<tag_name>')
 def show_tag(tag_name):
     try:
-        '''tag = Tag.query.filter_by(name=tag_name).first()
-        tag_to_blogposts = TagsToBlogposts.query.filter_by(tag=tag.tag_id).all()
-        blogposts = []
-        for t in tag_to_blogposts:
-            blogpost = Blogpost.query.filter_by(blogpost_id=t.blogpost).first()
-            blogposts.append(blogpost)
-        all_tags = []        
-        for blogpost in blogposts:
-            tags = TagsToBlogposts.query.filter_by(blogpost=blogpost.blogpost_id).all()
-            tags_per_blogpost = []
-            for t in tags:
-                tag = Tag.query.filter_by(tag_id=t.tag).first()
-                tags_per_blogpost.append(tag.name)
-            all_tags.append(tags_per_blogpost)'''
+
         blogposts = Blogpost.query.order_by('posted desc').filter(Blogpost.tags.any(name=tag_name)).all()
-        return render_template('show_tag_blogposts.html', tag_name=tag_name, blogposts=blogposts)#, tags=all_tags)
+        return render_template('show_tag_blogposts.html', tag_name=tag_name, blogposts=blogposts)
     
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -289,12 +251,14 @@ def page_not_found(e):
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(80), unique=True)
+    realname = db.Column(db.String(120))
     pw_hash = db.Column(db.String(128))
     email = db.Column(db.String(120), unique=True)
     blogposts = db.relationship('Blogpost', backref=db.backref('user', lazy='joined'), lazy='dynamic')
     
-    def __init__(self, username, pw_hash, email):
+    def __init__(self, username, realname, pw_hash, email):
         self.username = username
+        self.realname = realname
         self.pw_hash = pw_hash
         self.email = email
 
@@ -349,19 +313,6 @@ class Tag(db.Model):
     def __repr__(self):
         return '<Tag %r>' % self.name
 
-'''class TagsToBlogposts(db.Model):
-    id = db.Column(db.Integer, primary_key=True)    
-    tag = db.Column(db.Integer, db.ForeignKey('tag.tag_id'))
-    blogpost = db.Column(db.Integer, db.ForeignKey('blogpost.blogpost_id'))
-
-    def __init__(self, tag, blogpost):
-        self.tag = tag
-        self.blogpost = blogpost
-
-    def __repr__(self):
-        return '<TagToBlogpost %r to %r>' % (self.tag, self.blogpost)
-'''
-
 '''                 Helper Functions            '''
 
 def is_title_unique(title):
@@ -372,15 +323,15 @@ def is_title_unique(title):
 
 '''                 Database Setup             '''
 
-def db_setup(name, pw, email):
+def db_setup(name, realname, pw, email):
     #currently for development
-    db.drop_all()
-    db.create_all()
-    admin = User(name, pwd_context.encrypt(pw), email)
-    db.session.add(admin)
-    db.session.commit()
+    #db.drop_all()
+    #db.create_all()
+    #admin = User(name, realname, pwd_context.encrypt(pw), email)
+    #db.session.add(admin)
+    #db.session.commit()
     app.run()
 
 
 if __name__ == '__main__':
-    db_setup('dummy', 'dummy', 'dummy@mail.com')
+    db_setup('dummy', 'Mr. Dummy', 'dummy', 'dummy@mail.com')
