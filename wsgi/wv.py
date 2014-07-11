@@ -577,7 +577,7 @@ def is_reference_unique(title):
 '''                 Database Setup             '''
 
 def db_setup(name, realname, pw, email):
-    #currently for development
+    #currently for development#
     db.drop_all()
     db.create_all()
     admin = User(name, realname, pwd_context.encrypt(pw), email)
