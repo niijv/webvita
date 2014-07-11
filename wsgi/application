@@ -15,7 +15,7 @@ from wv import app as application
 from wv import *
 db.drop_all()
 db.create_all()
-admin = User('Dummy', pwd_context.encrypt('dummy'), 'dummy@gmail.com')
+admin = User('Dummy', 'Mr. Dummy', pwd_context.encrypt('dummy'), 'dummy@gmail.com')
 db.session.add(admin)
 db.session.commit()
 
