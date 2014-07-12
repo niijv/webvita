@@ -37,7 +37,7 @@ class Blogpost(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     title = db.Column(db.Unicode, unique=True)
     subtitle = db.Column(db.Unicode)
-    short_title = db.Column(db.Unicode)
+    short_title = db.Column(db.Unicode, unique=True)
     text_markdown = db.Column(db.Unicode)
     text_html = db.Column(db.Unicode)
     posted = db.Column(db.DateTime)

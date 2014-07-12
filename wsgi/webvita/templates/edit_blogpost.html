@@ -4,9 +4,9 @@
 
 {% if session.logged_in %}
 
-<form id="create" action="{{ url_for('update_blogpost', blogpost_title=blogpost.title) }}" method=post class="edit-blogpost" accept-charset="utf-8" enctype="multipart/form-data">
+<form id="create" action="{{ url_for('update_blogpost', blogpost_short_title=blogpost.short_title) }}" method=post class="edit-blogpost" accept-charset="utf-8" enctype="multipart/form-data">
     <fieldset>
-        <legend>Edit <a href="{{ url_for('show_blog', blogpost_title=blogpost.title) }}">{{ blogpost.title|safe }}</a></legend>
+        <legend>Edit <a href="{{ url_for('show_blogpost', blogpost_short_title=blogpost.short_title) }}">{{ blogpost.title|safe }}</a></legend>
         <ul>
             <li> <label for="title">Title:</label>
             <input type="text" name="title" size=50 value="{{ blogpost.title|safe }}"/>

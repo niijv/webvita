@@ -12,17 +12,18 @@ from models import Blogpost, Tag, User
 
 from datetime import datetime
 
-from helpers import is_blogpost_unique
+from helpers import is_blogpost_unique, is_blogpost_short_unique
 
 import markdown
 
 '''                 Blogposts               '''
 
-@app.route('/blog/<blogpost_title>')
-def show_blogpost(blogpost_title):
+@app.route('/blog/<blogpost_short_title>')
+def show_blogpost(blogpost_short_title):
     try:
         
-        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
+        blogpost = Blogpost.query.filter_by(short_title=blogpost_short_title)\
+                           .first_or_404()
         return render_template('show_blogpost.html', blogpost=blogpost)
 
     except Exception, e:
@@ -59,10 +60,14 @@ def add_blogpost():
                   'for your blogpost.')
             # TODO: send previous data
             return redirect(url_for('create_blogpost'))
-
-        subtitle = unicode(request.form['subtitle'])
         short_title = unicode(request.form['short_title']).replace(' ', '-')
-        
+        if not is_blogpost_short_unique(short_title):
+            flash('Short title already exists. Please choose a different ' + \
+                  'short title for your blogpost.')
+            # TODO: send previous data
+            return redirect(url_for('create_blogpost'))
+        subtitle = unicode(request.form['subtitle'])
+                
         text_markdown = unicode(request.form['text'])
         text_html = markdown.markdown(text_markdown, ['codehilite'])
         
@@ -105,14 +110,14 @@ def edit_blogpost_list():
         flash(error, 'error')
         return redirect(url_for('show_blog'))
 
-@app.route('/blog/edit/<blogpost_title>')
-def edit_blogpost(blogpost_title):
+@app.route('/blog/edit/<blogpost_short_title>')
+def edit_blogpost(blogpost_short_title):
     if not session.get('logged_in'):
         abort(401)
         
     try:   
 
-        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()  
+        blogpost = Blogpost.query.filter_by(short_title=blogpost_short_title).first_or_404()  
         tags = ', '.join([tag.name for tag in blogpost.tags])     
         return render_template('edit_blogpost.html', 
                                blogpost=blogpost, 
@@ -125,13 +130,16 @@ def edit_blogpost(blogpost_title):
         flash(error, 'error')
         return redirect(url_for('show_blog'))
 
-@app.route('/blog/update/<blogpost_title>', methods=['GET', 'POST'])
-def update_blogpost(blogpost_title):
+@app.route('/blog/update/<blogpost_short_title>', methods=['GET', 'POST'])
+def update_blogpost(blogpost_short_title):
     if not session.get('logged_in'):
         abort(401)
         
     try:    
-
+        
+        old_bp = Blogpost.query.filter_by(short_title=blogpost_short_title)\
+                         .first_or_404()
+        blogpost_title = old_bp.title
         title = unicode(request.form['title'])
         if title!=blogpost_title and not is_blogpost_unique(title):
             flash('Title already exists. Please choose a different title' + \
@@ -139,9 +147,16 @@ def update_blogpost(blogpost_title):
             # TODO: send previous data
             return redirect(url_for('edit_blogpost', 
                                     blogpost_title=blogpost_title))
-        
-        subtitle = unicode(request.form['subtitle'])
         short_title = unicode(request.form['short_title']).replace(' ', '-')
+        if short_title!=blogpost_short_title and not \
+           is_blogpost_short_unique(short_title):
+            flash('Short title already exists. Please choose a different ' + \
+                  'short title for your blogpost.')
+            # TODO: send previous data
+            return redirect(url_for('edit_blogpost', 
+                                    blogpost_title=blogpost_title))
+        subtitle = unicode(request.form['subtitle'])
+        
         
         text_markdown = unicode(request.form['text'])
         text_html = markdown.markdown(text_markdown, ['codehilite'])
@@ -153,7 +168,7 @@ def update_blogpost(blogpost_title):
             if t:
                 blogpost_tags.append(t)           
         
-        old_bp = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
+        
         old_bp.title = title    
         old_bp.subtitle = subtitle
         old_bp.short_title = short_title
@@ -165,7 +180,8 @@ def update_blogpost(blogpost_title):
         db.session.commit()
 
         flash('Blogpost has been updated.')
-        return redirect(url_for('show_blogpost', blogpost_title=title))          
+        return redirect(url_for('show_blogpost', 
+                                blogpost_short_title=short_title))          
 
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
@@ -174,14 +190,15 @@ def update_blogpost(blogpost_title):
         flash(error, 'error')
         return redirect(url_for('show_blog'))
 
-@app.route('/blog/delete/<blogpost_title>')
-def delete_blogpost(blogpost_title):
+@app.route('/blog/delete/<blogpost_short_title>')
+def delete_blogpost(blogpost_short_title):
     if not session.get('logged_in'):
         abort(401)
         
     try:   
 
-        blogpost = Blogpost.query.filter_by(title=blogpost_title).first_or_404()
+        blogpost = Blogpost.query.filter_by(short_title=blogpost_short_title)\
+                           .first_or_404()
         db.session.delete(blogpost) #TODO: remove possible unused tags
         db.session.commit()
 

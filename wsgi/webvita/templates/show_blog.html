@@ -10,7 +10,7 @@
     <div class="date"> 
             {{ blogpost.posted.strftime('%b %d, %Y')|safe }} 
     </div>      
-    <h1><a href="{{ url_for('show_blogpost', blogpost_title=blogpost.title) }}">{{ blogpost.title|safe }}</a></h1>
+    <h1><a href="{{ url_for('show_blogpost', blogpost_short_title=blogpost.short_title) }}">{{ blogpost.title|safe }}</a></h1>
     <div class="subtitle"> 
         <p>        
             {{ blogpost.subtitle|safe }} 
