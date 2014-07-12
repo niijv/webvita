@@ -11,6 +11,8 @@ from flask.ext.sqlalchemy import SQLAlchemy
 from models import Reference
 
 from helpers import is_reference_unique
+
+import markdown
                   
 '''             References              '''
 
@@ -37,14 +39,15 @@ def add_reference():
     try:     
 
         title = unicode(request.form['title'])
-        if not is_blogpost_unique(title):
+        if not is_reference_unique(title):
             flash('Title already exists. Please choose a different title' + \
                   ' for your reference.')
             # TODO: send previous data
             return redirect(url_for('create_reference'))
+        text_markdown =  unicode(request.form['text'])
+        text_html = markdown.markdown(text_markdown, ['codehilite'])
         
-        reference = Reference(title, 
-                              unicode(request.form['text']), 
+        reference = Reference(title, text_markdown, text_html, 
                               unicode(request.form['timespan']))
         db.session.add(reference)       
         db.session.commit()
@@ -110,10 +113,13 @@ def update_reference(reference_title):
             return redirect(url_for('edit_reference', 
                                     reference_title=reference_title))    
         
+        text_markdown =  unicode(request.form['text'])
+        text_html = markdown.markdown(text_markdown, ['codehilite'])
         old_reference = Reference.query.filter_by(title=reference_title)\
                                  .first_or_404()
         old_reference.title = title
-        old_reference.text = unicode(request.form['text'])
+        old_reference.text_markdown = text_markdown
+        old_reference.text_html = text_html
         old_reference.timespan = unicode(request.form['timespan'])
         db.session.commit()
 

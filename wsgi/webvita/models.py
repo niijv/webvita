@@ -93,12 +93,14 @@ class Tag(db.Model):
 class Reference(db.Model):
     id = db.Column(db.Integer, primary_key=True)   
     title = db.Column(db.Unicode, unique=True)
-    text = db.Column(db.Unicode)
+    text_markdown = db.Column(db.Unicode)
+    text_html = db.Column(db.Unicode)
     timespan = db.Column(db.Unicode)
 
-    def __init__(self, title, text, timespan):
+    def __init__(self, title, text_markdown, text_html, timespan):
         self.title = title
-        self.text = text
+        self.text_markdown = text_markdown
+        self.text_html = text_html
         self.timespan = timespan
 
     def __repr__(self):
