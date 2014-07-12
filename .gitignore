@@ -3,5 +3,5 @@
 *.pyo
 *~
 venv/
-venvw/
+win_venv/
 
