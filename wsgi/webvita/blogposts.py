@@ -14,6 +14,8 @@ from datetime import datetime
 
 from helpers import is_blogpost_unique
 
+import markdown
+
 '''                 Blogposts               '''
 
 @app.route('/blog/<blogpost_title>')
@@ -59,7 +61,10 @@ def add_blogpost():
             return redirect(url_for('create_blogpost'))
 
         subtitle = unicode(request.form['subtitle'])
-        short_title = unicode(request.form['short_title'])
+        short_title = unicode(request.form['short_title']).replace(' ', '-')
+        
+        text_markdown = unicode(request.form['text'])
+        text_html = markdown.markdown(text_markdown, ['codehilite'])
         
         blogpost_tags = []
         tags = unicode(request.form['tags'])
@@ -69,8 +74,8 @@ def add_blogpost():
                 blogpost_tags.append(t)           
 
         user = User.query.filter_by(username=session['user']).first_or_404()
-        blogpost = Blogpost(user, title, subtitle, short_title, unicode(request.form['text']), 
-                            blogpost_tags, hidden=False)
+        blogpost = Blogpost(user, title, subtitle, short_title, text_markdown,
+                            text_html, blogpost_tags, hidden=False)
         db.session.add(blogpost)       
         db.session.commit()
 
@@ -136,7 +141,10 @@ def update_blogpost(blogpost_title):
                                     blogpost_title=blogpost_title))
         
         subtitle = unicode(request.form['subtitle'])
-        short_title = unicode(request.form['short_title'])
+        short_title = unicode(request.form['short_title']).replace(' ', '-')
+        
+        text_markdown = unicode(request.form['text'])
+        text_html = markdown.markdown(text_markdown, ['codehilite'])
 
         blogpost_tags = []
         tags = unicode(request.form['tags'])
@@ -149,7 +157,8 @@ def update_blogpost(blogpost_title):
         old_bp.title = title    
         old_bp.subtitle = subtitle
         old_bp.short_title = short_title
-        old_bp.text = unicode(request.form['text'])
+        old_bp.text_markdown = text_markdown
+        old_bp.text_html = text_html
         # TODO: remove possible unused tags        
         old_bp.update_tags(blogpost_tags)
         old_bp.edited = datetime.utcnow()

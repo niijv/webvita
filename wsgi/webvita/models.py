@@ -38,7 +38,8 @@ class Blogpost(db.Model):
     title = db.Column(db.Unicode, unique=True)
     subtitle = db.Column(db.Unicode)
     short_title = db.Column(db.Unicode)
-    text = db.Column(db.Unicode)
+    text_markdown = db.Column(db.Unicode)
+    text_html = db.Column(db.Unicode)
     posted = db.Column(db.DateTime)
     edited = db.Column(db.DateTime)
     hidden = db.Column(db.Boolean)
@@ -57,13 +58,14 @@ class Blogpost(db.Model):
                 tag_list.append(tag)
         self.tags = tag_list
 
-    def __init__(self, author, title, subtitle, short_title, text, tags, 
-                 posted=None, edited=None, hidden=True):
+    def __init__(self, author, title, subtitle, short_title, text_markdown,
+                 text_html, tags, posted=None, edited=None, hidden=True):
         self.user_id = author.id        
         self.title = title
         self.subtitle = subtitle
         self.short_title = short_title
-        self.text = text
+        self.text_markdown = text_markdown
+        self.text_html = text_html
         self.update_tags(tags)
         if posted is None:
             posted = datetime.utcnow()
