@@ -1,7 +1,8 @@
 # -*-coding: utf-8 -*-
 #!flask/bin/python
 
-from models import Blogpost, Reference
+from webvita import db
+from models import Blogpost, Reference, Tag
 
 '''                 Helper Functions            '''
 
@@ -22,3 +23,11 @@ def is_reference_unique(title):
         return False
     else:
         return True
+        
+def delete_unused_tags(tag_list):
+    for tag in tag_list:
+        if tag.blogposts.all():
+            continue
+        else:
+            db.session.delete(tag)
+    db.session.commit()

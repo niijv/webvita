@@ -12,7 +12,8 @@ from models import Blogpost, Tag, User
 
 from datetime import datetime
 
-from helpers import is_blogpost_unique, is_blogpost_short_unique
+from helpers import is_blogpost_unique, is_blogpost_short_unique,\
+                    delete_unused_tags
 
 import markdown
 
@@ -160,7 +161,9 @@ def update_blogpost(blogpost_short_title):
         
         text_markdown = unicode(request.form['text'])
         text_html = markdown.markdown(text_markdown, ['codehilite'])
-
+        
+        tmp_tags = old_bp.tags
+        old_tags = [t for t in tmp_tags]
         blogpost_tags = []
         tags = unicode(request.form['tags'])
         for t in tags.split(','):
@@ -174,10 +177,10 @@ def update_blogpost(blogpost_short_title):
         old_bp.short_title = short_title
         old_bp.text_markdown = text_markdown
         old_bp.text_html = text_html
-        # TODO: remove possible unused tags        
         old_bp.update_tags(blogpost_tags)
         old_bp.edited = datetime.utcnow()
         db.session.commit()
+        delete_unused_tags(old_tags)
 
         flash('Blogpost has been updated.')
         return redirect(url_for('show_blogpost', 
@@ -199,9 +202,11 @@ def delete_blogpost(blogpost_short_title):
 
         blogpost = Blogpost.query.filter_by(short_title=blogpost_short_title)\
                            .first_or_404()
-        db.session.delete(blogpost) #TODO: remove possible unused tags
+        tags = blogpost.tags
+        db.session.delete(blogpost)
         db.session.commit()
-
+        delete_unused_tags(tags)
+        
         flash('Blogpost has been deleted.')
         return render_template('dashboard.html') 
 

@@ -48,7 +48,7 @@ def add_reference():
         text_html = markdown.markdown(text_markdown, ['codehilite'])
         
         reference = Reference(title, text_markdown, text_html, 
-                              unicode(request.form['timespan']))
+                              unicode(request.form['timespan']),link)
         db.session.add(reference)       
         db.session.commit()
 

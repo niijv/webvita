@@ -45,10 +45,9 @@ class Blogpost(db.Model):
     hidden = db.Column(db.Boolean)
     tags = db.relationship('Tag', 
                            secondary=tags, 
-                           backref=db.backref('tags', lazy='dynamic'))
+                           backref=db.backref('blogposts', lazy='dynamic'))
 
     def update_tags(self, tags):
-        #TODO: remove unused tags
         tag_list = []
         for t in tags:
             tag = Tag.query.filter_by(name=t).first()
@@ -102,7 +101,7 @@ class Reference(db.Model):
         self.text_markdown = text_markdown
         self.text_html = text_html
         self.timespan = timespan
-
+        
     def __repr__(self):
         return '<Reference %r>' % self.title
         
