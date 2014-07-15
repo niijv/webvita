@@ -15,9 +15,13 @@ else:
 if os.environ.get('OPENSHIFT_DATA_DIR'):
     SQLALCHEMY_MIGRATE_REPO = os.path.join(os.environ['OPENSHIFT_DATA_DIR'],
                                            'db/migration_repo/')
+    WHOOSH_BASE = os.path.join(os.environ['OPENSHIFT_DATA_DIR'],
+                                           'db/whoosh_search_index/')
 else:
     SQLALCHEMY_MIGRATE_REPO = os.path.join(os.path.dirname(__file__), 
                                            'db_local/migration_repo/')
+    WHOOSH_BASE = os.path.join(os.path.dirname(__file__), 
+                                           'db_local/whoosh_search_index/')
 
 #Openshift: 'OPENSHIFT_POSTGRESQL_DB_URL'
 #Heroku: 'DATABASE_URL'

@@ -49,9 +49,19 @@ def show_about():
     return render_template('show_about.html')
 
 @app.route('/search', methods=['POST'])
-def search():
-    terms = unicode(request.form['searchterms'])
-    return render_template('search.html', terms=terms)
+def show_search():
+    try:
+    
+        terms = unicode(request.form['searchterms'])
+        print terms
+        blogposts = Blogpost.query.whoosh_search(terms, or_=True)
+        return render_template('search.html', terms=terms, blogposts=blogposts)
+    except Exception, e:
+        error = 'An unexpected error occured. Try again later.'
+        if app.debug:
+            error = 'Error in search: ' + str(e)
+        flash(error, 'error')
+        return redirect(url_for('show_blog'))
 
 @app.route('/dashboard')
 def dashboard():

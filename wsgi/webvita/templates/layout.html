@@ -42,11 +42,11 @@
                     </ul>
                     <ul class="nav navbar-nav navbar-right">
                         <li>
-                            <form id="search" action="{{ url_for('search') }}" method="POST" accept-charset="utf-8">
+                            <form id="search" action="{{ url_for('show_search') }}" method="POST" accept-charset="utf-8">
                                 <!--<label for="searchbar">Search this site:</label>-->
-                                <input type="text" name="search">
+                                <input type="text" name="searchterms"/>
                                 <!--<label for="submit" value="Search"></label>-->
-                                <input type="submit" class="search" value="&#xf002;">
+                                <input type="submit" class="search" value="&#xf002;"/>
                             </form> 
                         </li>
                     </ul>

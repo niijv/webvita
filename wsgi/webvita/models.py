@@ -1,7 +1,9 @@
 # -*-coding: utf-8 -*-
 #!flask/bin/python
 
-from webvita import db
+from webvita import app, db
+
+import flask.ext.whooshalchemy as whooshalchemy
 
 from datetime import datetime
 
@@ -33,6 +35,7 @@ tags = db.Table('tags',
 
 
 class Blogpost(db.Model):
+    __searchable__ = ['title', 'text_html', 'subtitle', 'short_title']
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     title = db.Column(db.Unicode, unique=True)
@@ -76,8 +79,7 @@ class Blogpost(db.Model):
 
     def __repr__(self):
         return '<Blogpost %r>' % self.title
-
-
+       
 class Tag(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.Unicode, unique=True)
@@ -104,4 +106,5 @@ class Reference(db.Model):
         
     def __repr__(self):
         return '<Reference %r>' % self.title
-        
+
+whooshalchemy.whoosh_index(app, Blogpost)
