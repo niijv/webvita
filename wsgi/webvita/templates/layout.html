@@ -18,9 +18,11 @@
         
 
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/style.css') }}">
-        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pygments_.css') }}">
         <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/font.css') }}">
+        <link rel=stylesheet type=text/css href="{{ url_for('static', filename='css/pygments_.css') }}">
 
+        <link href='http://fonts.googleapis.com/css?family=Roboto:300' rel='stylesheet' type='text/css'>
+        
         <title> {% block title %}Blog{% endblock %} | Elias Zeitfogel - Webvita </title>
     </head>
 
@@ -35,21 +37,19 @@
                     <a class="navbar-brand" href="{{ url_for('show_about') }}">Elias Zeitfogel</a>
                 </div>
                 <div class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
+                    <ul class="nav navbar-nav navbar-right">
                         <li {% if request.path == '/' %} class="active" {% endif %}><a href="{{ url_for('show_blog') }}">Blog</a></li>
                         <li {% if request.path == '/references' %} class="active" {% endif %}><a href="{{ url_for('show_references') }}">References</a></li>
                         <li {% if request.path == '/about' %} class="active" {% endif %}><a href="{{ url_for('show_about') }}">About</a></li>
                     </ul>
-                    <ul class="nav navbar-nav navbar-right">
+                    <!--<ul class="nav navbar-nav navbar-right">
                         <li>
                             <form id="search" action="{{ url_for('show_search') }}" method="POST" accept-charset="utf-8">
-                                <!--<label for="searchbar">Search this site:</label>-->
                                 <input type="text" name="searchterms"/>
-                                <!--<label for="submit" value="Search"></label>-->
                                 <input type="submit" class="search" value="&#xf002;"/>
                             </form> 
                         </li>
-                    </ul>
+                    </ul>-->
                 </div>
             </div>
         </nav>
