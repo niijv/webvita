@@ -3,7 +3,7 @@
 
 from webvita import app, db
 
-#import flask.ext.whooshalchemy as whooshalchemy
+import flask.ext.whooshalchemy as whooshalchemy
 
 from datetime import datetime
 
@@ -110,4 +110,4 @@ class Reference(db.Model):
     def __repr__(self):
         return '<Reference %r>' % self.title
 
-#whooshalchemy.whoosh_index(app, Blogpost)
+whooshalchemy.whoosh_index(app, Blogpost)

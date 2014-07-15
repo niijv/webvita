@@ -41,15 +41,13 @@
                         <li {% if request.path == '/' %} class="active" {% endif %}><a href="{{ url_for('show_blog') }}">Blog</a></li>
                         <li {% if request.path == '/references' %} class="active" {% endif %}><a href="{{ url_for('show_references') }}">References</a></li>
                         <li {% if request.path == '/about' %} class="active" {% endif %}><a href="{{ url_for('show_about') }}">About</a></li>
-                    </ul>
-                    <!--<ul class="nav navbar-nav navbar-right">
                         <li>
                             <form id="search" action="{{ url_for('show_search') }}" method="POST" accept-charset="utf-8">
                                 <input type="text" name="searchterms"/>
                                 <input type="submit" class="search" value="&#xf002;"/>
                             </form> 
                         </li>
-                    </ul>-->
+                    </ul>
                 </div>
             </div>
         </nav>
