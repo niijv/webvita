@@ -158,19 +158,16 @@ def update_blogpost(blogpost_short_title):
                                     blogpost_title=blogpost_title))
         subtitle = unicode(request.form['subtitle'])
         
-        
         text_markdown = unicode(request.form['text'])
         text_html = markdown.markdown(text_markdown, ['codehilite'])
         
-        tmp_tags = old_bp.tags
-        old_tags = [t for t in tmp_tags]
+        old_tags = list(old_bp.tags)
         blogpost_tags = []
         tags = unicode(request.form['tags'])
         for t in tags.split(','):
             t = t.strip()
             if t:
                 blogpost_tags.append(t)           
-        
         
         old_bp.title = title    
         old_bp.subtitle = subtitle
@@ -202,10 +199,10 @@ def delete_blogpost(blogpost_short_title):
 
         blogpost = Blogpost.query.filter_by(short_title=blogpost_short_title)\
                            .first_or_404()
-        tags = blogpost.tags
+        old_tags = list(blogpost.tags)
         db.session.delete(blogpost)
         db.session.commit()
-        delete_unused_tags(tags)
+        delete_unused_tags(old_tags)
         
         flash('Blogpost has been deleted.')
         return render_template('dashboard.html') 

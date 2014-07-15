@@ -53,9 +53,9 @@ def show_search():
     try:
     
         terms = unicode(request.form['searchterms'])
-        print terms
-        blogposts = Blogpost.query.whoosh_search(terms, or_=True)
-        return render_template('search.html', terms=terms, blogposts=blogposts)
+        
+        #blogposts = Blogpost.query.whoosh_search(terms, or_=True)
+        return render_template('search.html', terms=terms)
     except Exception, e:
         error = 'An unexpected error occured. Try again later.'
         if app.debug:
