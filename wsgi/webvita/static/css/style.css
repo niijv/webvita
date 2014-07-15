@@ -84,7 +84,7 @@ input[type="submit"].search {
     position:relative;
 }
 
-#search {
+form#search {
     padding-left: 20px;
 }
 
