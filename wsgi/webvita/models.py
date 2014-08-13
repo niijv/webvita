@@ -1,5 +1,4 @@
 # -*-coding: utf-8 -*-
-#!flask/bin/python
 
 from webvita import app, db
 
@@ -7,7 +6,6 @@ import flask.ext.whooshalchemy as whooshalchemy
 
 from datetime import datetime
 
-'''                 Database Models                 '''
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -51,12 +49,11 @@ class Blogpost(db.Model):
                            backref=db.backref('blogposts', lazy='dynamic'))
 
     def update_tags(self, tags):
-        # to_delete = set()
         to_add = set(tags)
         for old_tag in list(self.tags):
             if old_tag.name not in tags:
                 self.tags.remove(old_tag)
-            to_add.discard(old_tag.name) # .id
+            to_add.discard(old_tag.name)
         for new_tag in to_add:
             tag = Tag.query.filter_by(name=new_tag).first()
             if tag is None:

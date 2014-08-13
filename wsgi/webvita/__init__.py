@@ -1,10 +1,7 @@
 # -*-coding: utf-8 -*-
-#!flask/bin/python
 
 from flask import Flask
 from flask.ext.sqlalchemy import SQLAlchemy
-
-'''                 Config and Initialisation               '''
 
 app = Flask(__name__)
 
